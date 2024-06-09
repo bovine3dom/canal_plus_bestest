@@ -1,6 +1,6 @@
 // run on cinema genre page (like comedy) on the 6006.json object, should be ~50kB. Right click -> copy value -> copy response. myobj = ctrl+v in console
 function getIDs(cineJson) {
-    return cineJson.strates.map(x=>x?.contents?.map(y=>y.type == "VoD" && y.contentID || undefined)).flat().filter(x=>x) // not undefined
+    return cineJson?.strates?.map(x=>x?.contents?.map(y=>y.type == "VoD" && y.contentID || undefined)).flat().filter(x=>x) // not undefined
 }
 
 function getRatings(vodJson) {
@@ -23,7 +23,8 @@ function details2Human(details) {
 // no lets because in console
 API_KEY = "your key here" // changes ... sometimes? get from the 6006 json request
 myobjs = await (await fetch(`https://hodor.canalplus.pro/api/v2/mycanal/page/${API_KEY}/6006.json?aegon=true&get=14`)).json() // needs to run on e.g. comedie page. no idea what get=14 does?
-myIDs = getIDs(myobjs)
+// myobjs = await (await fetch(`https://hodor.canalplus.pro/api/v2/mycanal/contentGrid/${API_KEY}/creplay_chaine_paramountplus_menu_films.json?objectType=list&dsp=detailPage&sdm=show&previousContextDetail=mycanal-chaines__apps-chaines-paramount%2B-2-contentrow_%28no_title%29-contentrow-creplay_chaine_paramountplus_menu&discoverMode=true&displayNBOLogo=true&logoChannelBackgroundColor=black&displayLogo=true`)).json() // paramount, seems to be limited to 100 though
+myIDs = getIDs(myobjs) ?? myobjs?.contents?.map(y=>y.type == "VoD" && y.contentID || undefined).filter(x=>x) // not undefined
 detailsArray = await Promise.all(myIDs.slice(0,1000).map(x=>getDetails(x)))
 humanDetailsArray = detailsArray.map(x=>details2Human(x))
 
